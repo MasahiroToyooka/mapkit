@@ -36,6 +36,16 @@ class MainController: UIViewController {
         performLocalSearch()
 //        setupAnnotationsForMap()
         setupSearchUI()
+        setupLocationCarousel()
+    }
+    
+    let locationsController = LocationsCarouselController(scrollDirection: .horizontal)
+    
+    fileprivate func setupLocationCarousel() {
+        let locationView = locationsController.view!
+        view.addSubview(locationView)
+        locationView.anchor(top: nil, leading: view.leadingAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, trailing: view.trailingAnchor, size: .init(width: 0, height: 150))
+        
     }
     
     fileprivate func setupSearchUI() {

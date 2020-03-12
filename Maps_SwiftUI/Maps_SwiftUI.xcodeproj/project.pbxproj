@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C1A71C2E241A3703006BFA4C /* LocationsCarouselController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A71C2D241A3703006BFA4C /* LocationsCarouselController.swift */; };
 		C1EE87152416100B0072E568 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EE87142416100B0072E568 /* AppDelegate.swift */; };
 		C1EE87172416100B0072E568 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EE87162416100B0072E568 /* SceneDelegate.swift */; };
 		C1EE87192416100B0072E568 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EE87182416100B0072E568 /* ContentView.swift */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C1A71C2D241A3703006BFA4C /* LocationsCarouselController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsCarouselController.swift; sourceTree = "<group>"; };
 		C1EE87112416100B0072E568 /* Maps_SwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Maps_SwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1EE87142416100B0072E568 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C1EE87162416100B0072E568 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -84,6 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				C1EE87292418578C0072E568 /* MainController.swift */,
+				C1A71C2D241A3703006BFA4C /* LocationsCarouselController.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -168,6 +171,7 @@
 				C1EE872A2418578C0072E568 /* MainController.swift in Sources */,
 				C1EE87152416100B0072E568 /* AppDelegate.swift in Sources */,
 				C1EE87172416100B0072E568 /* SceneDelegate.swift in Sources */,
+				C1A71C2E241A3703006BFA4C /* LocationsCarouselController.swift in Sources */,
 				C1EE87192416100B0072E568 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
