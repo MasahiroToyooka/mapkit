@@ -23,6 +23,7 @@ extension MainController: MKMapViewDelegate {
 class MainController: UIViewController {
     
     let mapView = MKMapView()
+    let searchTextField = UITextField(placeholder: "ここで検索")
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,12 +35,29 @@ class MainController: UIViewController {
         setupRegionForMap()
         performLocalSearch()
 //        setupAnnotationsForMap()
+        setupSearchUI()
+    }
+    
+    fileprivate func setupSearchUI() {
+        let whiteContainer = UIView(backgroundColor: .white)
+        
+        view.addSubview(whiteContainer)
+        whiteContainer.anchor(top: view.safeAreaLayoutGuide.topAnchor, leading: view.leadingAnchor, bottom: nil, trailing: view.trailingAnchor, padding: .init(top: 0, left: 16, bottom: 0, right: 16), size: .init(width: 0, height: 50))
+        
+        whiteContainer.stack(searchTextField).withMargins(.allSides(16))
+        
+        NotificationCenter.default
+            .publisher(for: UITextField.textDidChangeNotification, object: searchTextField)
+            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+            .sink { (_) in
+                self.performLocalSearch()
+        }
     }
     
     fileprivate func performLocalSearch() {
         
         let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = "apple"
+        request.naturalLanguageQuery = searchTextField.text
         request.region = mapView.region
         let localSearch = MKLocalSearch(request: request)
         localSearch.start { (resp, err) in
@@ -47,8 +65,11 @@ class MainController: UIViewController {
                 print("failed local search",err)
                 return
             }
+            
+            self.mapView.removeAnnotations(self.mapView.annotations)
+            
             resp?.mapItems.forEach({ (mapItem) in
-                print(mapItem.placemark.subThoroughfare ?? "")
+                print(mapItem.address())
                 let annotation = MKPointAnnotation()
                 annotation.coordinate = mapItem.placemark.coordinate
                 annotation.title = mapItem.name
@@ -59,8 +80,8 @@ class MainController: UIViewController {
     }
     
     fileprivate func setupRegionForMap() {
-        let coordinate = CLLocationCoordinate2D(latitude: 35.609687, longitude: 139.667391)
-        let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        let coordinate = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
+        let span = MKCoordinateSpan(latitudeDelta: 1, longitudeDelta: 1)
         
         let region = MKCoordinateRegion(center: coordinate, span: span)
         mapView.setRegion(region, animated: true)
@@ -68,7 +89,7 @@ class MainController: UIViewController {
     
     fileprivate func setupAnnotationsForMap() {
         let annotation = MKPointAnnotation()
-        annotation.coordinate = CLLocationCoordinate2D(latitude: 35.609687, longitude: 139.667391)
+        annotation.coordinate = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
         annotation.title = "Title aaaaaaa"
         annotation.subtitle = "subtitleaaaaaaa"
         mapView.addAnnotation(annotation)
@@ -76,7 +97,21 @@ class MainController: UIViewController {
     }
 }
 
+extension MKMapItem {
+    func address() -> String {
+        //位置情報
+        let administrativeArea = placemark.administrativeArea == nil ? "" : placemark.administrativeArea!
+        let locality = placemark.locality == nil ? "" : placemark.locality!
+        let subLocality = placemark.subLocality == nil ? "" : placemark.subLocality!
+        let thoroughfare = placemark.thoroughfare == nil ? "" : placemark.thoroughfare!
+        let subThoroughfare = placemark.subThoroughfare == nil ? "" : placemark.subThoroughfare!
+        let placeName = !thoroughfare.contains( subLocality ) ? subLocality : thoroughfare
 
+        //住所
+        let address = administrativeArea + locality + placeName + subThoroughfare
+        return address
+    }
+}
 // SwiftUI
 
 import SwiftUI
