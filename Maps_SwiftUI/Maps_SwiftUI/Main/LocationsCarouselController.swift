@@ -12,15 +12,14 @@ import MapKit
 
 class LocationCell: LBTAListCell<MKMapItem> {
     
-//    override var item: MKMapItem! {
-//        didSet {
-//            label.text = item.name
-//            addressLabel.text = item.address()
-//        }
-//    }
+    override var item: MKMapItem! {
+        didSet {
+            label.text = item.name
+            addressLabel.text = item.address()
+        }
+    }
     
     let label = UILabel(text: "Location", font: .boldSystemFont(ofSize: 16))
-//
     let addressLabel = UILabel(text: "Address", numberOfLines: 0)
     
     override func setupViews() {
@@ -37,7 +36,7 @@ class LocationCell: LBTAListCell<MKMapItem> {
 
 class LocationsCarouselController: LBTAListController<LocationCell, MKMapItem> {
     
-//    weak var mainController: MainController?
+    weak var mainController: MainController?
     
 //    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 //        let annotations = mainController?.mapView.annotations
@@ -52,14 +51,36 @@ class LocationsCarouselController: LBTAListController<LocationCell, MKMapItem> {
 //        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
 //    }
     
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print(self.items[indexPath.item].name)
+        
+        let annotations = mainController?.mapView.annotations
+        
+        annotations?.forEach({ (annotation) in
+            if annotation.title == items[indexPath.item].name {
+                mainController?.mapView.selectAnnotation(annotation, animated: true)
+            }
+        })
+        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.clipsToBounds = false
         collectionView.backgroundColor = .clear
-        let placemark = MKPlacemark(coordinate: .init(latitude: 10, longitude: 55))
-        let dummyMapItem = MKMapItem(placemark: placemark)
-        dummyMapItem.name = "Dummy location for example"
-        self.items = [dummyMapItem]
+//        let placemark1 = MKPlacemark(coordinate: .init(latitude: 10, longitude: 55))
+//        let placemark2 = MKPlacemark(coordinate: .init(latitude: 10, longitude: 55))
+//        let placemark3 = MKPlacemark(coordinate: .init(latitude: 10, longitude: 55))
+//
+//        let dummyMapItem1 = MKMapItem(placemark: placemark1)
+//        let dummyMapItem2 = MKMapItem(placemark: placemark2)
+//        let dummyMapItem3 = MKMapItem(placemark: placemark3)
+//
+//        dummyMapItem1.name = "Dummy location for example"
+//        dummyMapItem2.name = "Dummy location for example"
+//        dummyMapItem3.name = "Dummy location for example"
+//
+//        self.items = [dummyMapItem1, dummyMapItem2, dummyMapItem3]
     }
 }
 

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C1A71C2E241A3703006BFA4C /* LocationsCarouselController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A71C2D241A3703006BFA4C /* LocationsCarouselController.swift */; };
+		C1A71C30241A7857006BFA4C /* MKMapItem+address.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A71C2F241A7857006BFA4C /* MKMapItem+address.swift */; };
 		C1EE87152416100B0072E568 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EE87142416100B0072E568 /* AppDelegate.swift */; };
 		C1EE87172416100B0072E568 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EE87162416100B0072E568 /* SceneDelegate.swift */; };
 		C1EE87192416100B0072E568 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EE87182416100B0072E568 /* ContentView.swift */; };
@@ -20,6 +21,7 @@
 
 /* Begin PBXFileReference section */
 		C1A71C2D241A3703006BFA4C /* LocationsCarouselController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsCarouselController.swift; sourceTree = "<group>"; };
+		C1A71C2F241A7857006BFA4C /* MKMapItem+address.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKMapItem+address.swift"; sourceTree = "<group>"; };
 		C1EE87112416100B0072E568 /* Maps_SwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Maps_SwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1EE87142416100B0072E568 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C1EE87162416100B0072E568 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 			children = (
 				C1EE87292418578C0072E568 /* MainController.swift */,
 				C1A71C2D241A3703006BFA4C /* LocationsCarouselController.swift */,
+				C1A71C2F241A7857006BFA4C /* MKMapItem+address.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -170,6 +173,7 @@
 			files = (
 				C1EE872A2418578C0072E568 /* MainController.swift in Sources */,
 				C1EE87152416100B0072E568 /* AppDelegate.swift in Sources */,
+				C1A71C30241A7857006BFA4C /* MKMapItem+address.swift in Sources */,
 				C1EE87172416100B0072E568 /* SceneDelegate.swift in Sources */,
 				C1A71C2E241A3703006BFA4C /* LocationsCarouselController.swift in Sources */,
 				C1EE87192416100B0072E568 /* ContentView.swift in Sources */,
@@ -310,6 +314,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Maps_SwiftUI/Preview Content\"";
+				DEVELOPMENT_TEAM = 77P3HR8235;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Maps_SwiftUI/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -329,6 +334,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Maps_SwiftUI/Preview Content\"";
+				DEVELOPMENT_TEAM = 77P3HR8235;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Maps_SwiftUI/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

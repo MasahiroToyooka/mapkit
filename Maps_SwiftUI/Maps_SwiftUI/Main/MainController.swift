@@ -13,22 +13,57 @@ import LBTATools
 extension MainController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
-        let annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "id")
-        annotationView.canShowCallout = true
-//        annotationView.image = #imageLiteral(resourceName: "pin")
-        return annotationView
+        if (annotation is MKPointAnnotation) {
+            let annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "id")
+            annotationView.canShowCallout = true
+            return annotationView
+        }
+        return nil
     }
 }
 
-class MainController: UIViewController {
+class MainController: UIViewController, CLLocationManagerDelegate {
     
     let mapView = MKMapView()
+    let locationManager = CLLocationManager()
+
     let searchTextField = UITextField(placeholder: "ここで検索")
+    
+    fileprivate func requestUserLocation() {
+        
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.delegate = self
+
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        switch status {
+        case .authorizedWhenInUse:
+            print("when in use")
+            locationManager.startUpdatingLocation()
+        default:
+            print("Failed to authorrize")
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let firstLocation = locations.first else { return }
+        mapView.setRegion(.init(center: firstLocation.coordinate, span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1)), animated: false)
+        locationManager.stopUpdatingLocation()
+    }
+    
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        guard let index = self.locationsController.items.firstIndex(where: {$0.name == view.annotation?.title}) else { return }
+        self.locationsController.collectionView.scrollToItem(at: [0, index], at: .centeredHorizontally, animated: true)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        requestUserLocation()
+        
         mapView.delegate = self
+        mapView.showsUserLocation = true
         view.addSubview(mapView)
         mapView.fillSuperview()
         
@@ -37,6 +72,7 @@ class MainController: UIViewController {
 //        setupAnnotationsForMap()
         setupSearchUI()
         setupLocationCarousel()
+        locationsController.mainController = self
     }
     
     let locationsController = LocationsCarouselController(scrollDirection: .horizontal)
@@ -56,7 +92,7 @@ class MainController: UIViewController {
         
         whiteContainer.stack(searchTextField).withMargins(.allSides(16))
         
-        NotificationCenter.default
+        _ = NotificationCenter.default
             .publisher(for: UITextField.textDidChangeNotification, object: searchTextField)
             .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
             .sink { (_) in
@@ -75,22 +111,28 @@ class MainController: UIViewController {
                 print("failed local search",err)
                 return
             }
-            
             self.mapView.removeAnnotations(self.mapView.annotations)
+            self.locationsController.items.removeAll()
             
             resp?.mapItems.forEach({ (mapItem) in
                 print(mapItem.address())
                 let annotation = MKPointAnnotation()
                 annotation.coordinate = mapItem.placemark.coordinate
                 annotation.title = mapItem.name
+                
                 self.mapView.addAnnotation(annotation)
+                self.locationsController.items.append(mapItem)
             })
+            
+            if resp?.mapItems.count != 0 {
+                self.locationsController.collectionView.scrollToItem(at: [0, 0], at: .centeredHorizontally, animated: true)
+            }
             self.mapView.showAnnotations(self.mapView.annotations, animated: true)
         }
     }
     
     fileprivate func setupRegionForMap() {
-        let coordinate = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
+        let coordinate = CLLocationCoordinate2D(latitude: 35.362222, longitude: 138.731388)
         let span = MKCoordinateSpan(latitudeDelta: 1, longitudeDelta: 1)
         
         let region = MKCoordinateRegion(center: coordinate, span: span)
@@ -99,7 +141,7 @@ class MainController: UIViewController {
     
     fileprivate func setupAnnotationsForMap() {
         let annotation = MKPointAnnotation()
-        annotation.coordinate = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
+        annotation.coordinate = CLLocationCoordinate2D(latitude: 35.362222, longitude: 138.731388)
         annotation.title = "Title aaaaaaa"
         annotation.subtitle = "subtitleaaaaaaa"
         mapView.addAnnotation(annotation)
@@ -107,21 +149,6 @@ class MainController: UIViewController {
     }
 }
 
-extension MKMapItem {
-    func address() -> String {
-        //位置情報
-        let administrativeArea = placemark.administrativeArea == nil ? "" : placemark.administrativeArea!
-        let locality = placemark.locality == nil ? "" : placemark.locality!
-        let subLocality = placemark.subLocality == nil ? "" : placemark.subLocality!
-        let thoroughfare = placemark.thoroughfare == nil ? "" : placemark.thoroughfare!
-        let subThoroughfare = placemark.subThoroughfare == nil ? "" : placemark.subThoroughfare!
-        let placeName = !thoroughfare.contains( subLocality ) ? subLocality : thoroughfare
-
-        //住所
-        let address = administrativeArea + locality + placeName + subThoroughfare
-        return address
-    }
-}
 // SwiftUI
 
 import SwiftUI
