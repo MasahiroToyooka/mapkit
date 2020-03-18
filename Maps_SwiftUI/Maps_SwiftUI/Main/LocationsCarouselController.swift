@@ -38,29 +38,16 @@ class LocationsCarouselController: LBTAListController<LocationCell, MKMapItem> {
     
     weak var mainController: MainController?
     
-//    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        let annotations = mainController?.mapView.annotations
-//
-//        annotations?.forEach({ (annotation) in
-//            guard let customAnnotation = annotation as? MainController.CustomMapItemAnnotation else { return }
-//            if customAnnotation.mapItem?.name == self.items[indexPath.item].name {
-//                mainController?.mapView.selectAnnotation(annotation, animated: true)
-//            }
-//        })
-//
-//        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
-//    }
-    
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(self.items[indexPath.item].name)
-        
         let annotations = mainController?.mapView.annotations
-        
+
         annotations?.forEach({ (annotation) in
-            if annotation.title == items[indexPath.item].name {
+            guard let customAnnotation = annotation as? MainController.CustomMapItemAnnotation else { return }
+            if customAnnotation.mapItem?.name == self.items[indexPath.item].name {
                 mainController?.mapView.selectAnnotation(annotation, animated: true)
             }
         })
+
         collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
     }
     
