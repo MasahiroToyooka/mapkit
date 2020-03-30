@@ -85,6 +85,8 @@ class MainController: UIViewController, CLLocationManagerDelegate {
         
     }
     
+    var listener: Any!
+    
     fileprivate func setupSearchUI() {
         let whiteContainer = UIView(backgroundColor: .white)
         
@@ -93,7 +95,7 @@ class MainController: UIViewController, CLLocationManagerDelegate {
         
         whiteContainer.stack(searchTextField).withMargins(.allSides(16))
         
-        _ = NotificationCenter.default
+        listener = NotificationCenter.default
             .publisher(for: UITextField.textDidChangeNotification, object: searchTextField)
             .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
             .sink { (_) in

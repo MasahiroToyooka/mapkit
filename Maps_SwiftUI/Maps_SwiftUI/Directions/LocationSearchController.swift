@@ -10,6 +10,7 @@ import SwiftUI
 import UIKit
 import LBTATools
 import MapKit
+import Combine
 
 
 class LocationSearchCell: LBTAListCell<MKMapItem> {
@@ -44,13 +45,50 @@ class LocationSearchController: LBTAListController<LocationSearchCell, MKMapItem
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        searchTextField.becomeFirstResponder()
         
-        performLocalSearch()
+//        performLocalSearch()
+        setupSearchBar()
     }
     
+    let backIcon = UIButton(image: #imageLiteral(resourceName: "back_arrow"), tintColor: .black, target: self, action: #selector(handleBack)).withWidth(28)
+    let searchTextField = IndentedTextField(placeholder: "ここで検索", padding: 12)
+    
+    @objc func handleBack() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    let navBarHeight: CGFloat = 66
+    
+    fileprivate func setupSearchBar() {
+        let searchBar = UIView(backgroundColor: .clear)
+        view.addSubview(searchBar)
+        searchBar.anchor(top: view.safeAreaLayoutGuide.topAnchor, leading: view.leadingAnchor, bottom: nil, trailing: view
+            .trailingAnchor, size: .init(width: 0, height: navBarHeight))
+        
+        searchBar.hstack(backIcon, searchTextField, spacing: 12).withMargins(.init(top: 0, left: 16, bottom: 16, right: 16))
+        searchTextField.layer.borderWidth = 2
+        searchTextField.layer.borderColor = UIColor.lightGray.cgColor
+        searchTextField.layer.cornerRadius = 5
+        
+        setupSearchListener()
+    }
+    
+    var listener: AnyCancellable!
+    
+    fileprivate func setupSearchListener() {
+        listener = NotificationCenter.default
+            .publisher(for: UITextField.textDidChangeNotification, object: searchTextField)
+            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+            .sink { [weak self] (_) in
+                self?.performLocalSearch()
+        }
+//        listener.cancel()
+    }
+
     fileprivate func performLocalSearch() {
         let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = "Apple"
+        request.naturalLanguageQuery = searchTextField.text
         let search = MKLocalSearch.init(request: request)
         
         search.start { (resp, err) in
@@ -60,6 +98,11 @@ class LocationSearchController: LBTAListController<LocationSearchCell, MKMapItem
 }
 
 extension LocationSearchController: UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return .init(top: navBarHeight, left: 0, bottom: 0, right: 0)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return .init(width: view.frame.width, height: 70)
     }

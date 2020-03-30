@@ -11,6 +11,7 @@ import UIKit
 import MapKit
 import LBTATools
 import SwiftUI
+import JGProgressHUD
 
 class DirectionsController: UIViewController, MKMapViewDelegate{
      
@@ -27,48 +28,97 @@ class DirectionsController: UIViewController, MKMapViewDelegate{
         mapView.anchor(top: navBar.bottomAnchor, leading: view.leadingAnchor, bottom: view.bottomAnchor, trailing: view.trailingAnchor)
 
         mapView.showsUserLocation = true
-        setupStartEndDummyAnnotations()
-        requestForDirections()
+        
+        setupShowRouteButton()
     }
     
-    fileprivate func setupStartEndDummyAnnotations() {
-        let startAnnotation = MKPointAnnotation()
-        startAnnotation.coordinate = .init(latitude: 35.691574, longitude: 139.704647)
-        startAnnotation.title = "Start"
+    fileprivate func setupShowRouteButton() {
         
-        let endAnnotation = MKPointAnnotation()
-        endAnnotation.coordinate = .init(latitude: 35.4437, longitude: 139.638)
-        endAnnotation.title = "End"
+        let showRouteButton = UIButton(title: "ルート検索", titleColor: .black, font: .boldSystemFont(ofSize: 18), backgroundColor: .white, target: self, action: #selector(handleShowRoute))
+        view.addSubview(showRouteButton)
+        showRouteButton.anchor(top: nil, leading: view.leadingAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, trailing: view.trailingAnchor, padding: .allSides(16), size: .init(width: 0, height: 50))
+    }
+    
+    @objc func handleShowRoute() {
+        let routesControoler = RoutesController()
+        routesControoler.items = self.cuurentlyShowingRoute?.steps.filter {!$0.instructions.isEmpty} ?? []
+        present(routesControoler, animated: true)
+    }
+    
+    class RouteStepCell: LBTAListCell<MKRoute.Step> {
         
-        mapView.addAnnotation(startAnnotation)
-        mapView.addAnnotation(endAnnotation)
+        override var item: MKRoute.Step! {
+            didSet {
+                nameLabel.text = item.instructions
+                let milesConversion = item.distance * 0.00062137
+                distanceLabel.text = String(format: "%.2f mi", milesConversion)            }
+        }
         
-        mapView.showAnnotations(mapView.annotations, animated: true)
+        let nameLabel = UILabel(text: "name", numberOfLines: 0)
+        let distanceLabel = UILabel(text: "distance", textAlignment: .right)
+        
+        override func setupViews() {
+            hstack(nameLabel, distanceLabel.withWidth(80)).withMargins(.allSides(16))
+            
+            addSeparatorView(leadingAnchor: nameLabel.leadingAnchor)
+        }
+    }
+    
+    class RouteHeader: UICollectionReusableView {
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            backgroundColor = .cyan
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+    
+    class RoutesController: LBTAListHeaderController<RouteStepCell, MKRoute.Step, RouteHeader>, UICollectionViewDelegateFlowLayout {
+        
+        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+            return .init(width: 0, height: 120)
+        }
+        
+        override func viewDidLoad() {
+            super.viewDidLoad()
+        }
+        
+        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+            return .init(width: view.frame.width, height: 70)
+        }
     }
     
     fileprivate func requestForDirections() {
         
         let request = MKDirections.Request()
-        request.requestsAlternateRoutes = true
-        request.transportType = .walking
+//        request.requestsAlternateRoutes = true
+//        request.transportType = .walking
         
-        let startPlacemark = MKPlacemark(coordinate: .init(latitude: 35.691574, longitude: 139.704647))
-        request.source = .init(placemark: startPlacemark)
+        request.source = startMapItem
+        request.destination = endMapItem
         
-        let endPlacemark = MKPlacemark(coordinate: .init(latitude: 35.4437, longitude: 139.638))
-        request.destination = .init(placemark: endPlacemark)
+        let hud = JGProgressHUD(style: .dark)
+        hud.textLabel.text = "検索中..."
+        hud.show(in: view)
         
         let directions = MKDirections(request: request)
         directions.calculate { (resp, err) in
+            hud.dismiss()
             if let error = err {
                 print("Failed to find routing info:", error)
                 return
             }
-            resp?.routes.forEach({ (route) in
-                self.mapView.addOverlay(route.polyline)
-            })
+            
+            if let firstRoute = resp?.routes.first {
+                self.mapView.addOverlay(firstRoute.polyline)
+            }
+            self.cuurentlyShowingRoute = resp?.routes.first
         }
     }
+    
+    var cuurentlyShowingRoute: MKRoute?
     
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         let polylineRenderer = MKPolylineRenderer(overlay: overlay)
@@ -81,6 +131,7 @@ class DirectionsController: UIViewController, MKMapViewDelegate{
     let endTextField = IndentedTextField(placeholder: "end", padding: 12, cornerRadius: 5)
     
     let textfield = UITextField(backgroundColor: .red)
+    
     fileprivate func setupNavBarUI() {
         navBar.setupShadow(opacity: 0.5, radius: 5 )
         view.addSubview(navBar)
@@ -118,19 +169,51 @@ class DirectionsController: UIViewController, MKMapViewDelegate{
         navigationController?.navigationBar.isHidden = true
     }
     
+    var startMapItem: MKMapItem?
+    var endMapItem: MKMapItem?
+    
     @objc func handleChangeStartLocation() {
         let vc = LocationSearchController()
         vc.selectionHandler = { [weak self] mapItem in
             self?.startTextField.text = mapItem.name
+            self?.startMapItem = mapItem
+            self?.refreshMap()
         }
         
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func refreshMap() {
+        
+        mapView.removeAnnotations(mapView.annotations)
+        mapView.removeOverlays(mapView.overlays)
+        
+        if let mapItem = startMapItem {
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = mapItem.placemark.coordinate
+            annotation.title = mapItem.name
+            self.mapView.addAnnotation(annotation)
+            self.mapView.showAnnotations(mapView.annotations, animated: false)
+        }
+        
+        if let mapItem = endMapItem {
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = mapItem.placemark.coordinate
+            annotation.title = mapItem.name
+            self.mapView.addAnnotation(annotation)
+        }
+        
+        requestForDirections()
+        self.mapView.showAnnotations(mapView.annotations, animated: false)
     }
     
     @objc func handleChangeEndLocation() {
         let vc = LocationSearchController()
         vc.selectionHandler = { [weak self] mapItem in
             self?.endTextField.text = mapItem.name
+            
+            self?.endMapItem = mapItem
+            self?.refreshMap()
         }
         
         navigationController?.pushViewController(vc, animated: true)
