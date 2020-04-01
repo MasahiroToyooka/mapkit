@@ -41,6 +41,8 @@ class DirectionsController: UIViewController, MKMapViewDelegate{
     
     @objc func handleShowRoute() {
         let routesControoler = RoutesController()
+        routesControoler.route = cuurentlyShowingRoute
+        
         routesControoler.items = self.cuurentlyShowingRoute?.steps.filter {!$0.instructions.isEmpty} ?? []
         present(routesControoler, animated: true)
     }
@@ -64,18 +66,15 @@ class DirectionsController: UIViewController, MKMapViewDelegate{
         }
     }
     
-    class RouteHeader: UICollectionReusableView {
-        override init(frame: CGRect) {
-            super.init(frame: frame)
-            backgroundColor = .cyan
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-    }
+
     
     class RoutesController: LBTAListHeaderController<RouteStepCell, MKRoute.Step, RouteHeader>, UICollectionViewDelegateFlowLayout {
+        
+        var route: MKRoute!
+        
+        override func setupHeader(_ header: RouteHeader) {
+            header.setupHeaderInformation(route: route)
+        }
         
         func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
             return .init(width: 0, height: 120)
