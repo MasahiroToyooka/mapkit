@@ -8,9 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		54660AFC919EDA4EE14C14BE /* Pods_Maps_SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7384F91A1E60CAC1B9E20C60 /* Pods_Maps_SwiftUI.framework */; };
-		C11DE24B242D57C90069747F /* BuildFile in Frameworks */ = {isa = PBXBuildFile; productRef = C11DE24A242D57C90069747F /* SwiftPackageProductDependency */; };
+		C11DE24B242D57C90069747F /* JGProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = C11DE24A242D57C90069747F /* JGProgressHUD */; };
 		C11DE24D2431A0270069747F /* RouteHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11DE24C2431A0270069747F /* RouteHeader.swift */; };
 		C11DE2502433031D0069747F /* PlacesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11DE24F2433031D0069747F /* PlacesController.swift */; };
+		C11DE25224362E6E0069747F /* CustomCallout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11DE25124362E6E0069747F /* CustomCallout.swift */; };
 		C1A71C2E241A3703006BFA4C /* LocationsCarouselController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A71C2D241A3703006BFA4C /* LocationsCarouselController.swift */; };
 		C1A71C30241A7857006BFA4C /* MKMapItem+address.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A71C2F241A7857006BFA4C /* MKMapItem+address.swift */; };
 		C1A71C33241F9CFB006BFA4C /* DirectionsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A71C32241F9CF6006BFA4C /* DirectionsController.swift */; };
@@ -22,7 +23,7 @@
 		C1EE871E2416100E0072E568 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1EE871D2416100E0072E568 /* Preview Assets.xcassets */; };
 		C1EE87212416100E0072E568 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C1EE871F2416100E0072E568 /* LaunchScreen.storyboard */; };
 		C1EE872A2418578C0072E568 /* MainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EE87292418578C0072E568 /* MainController.swift */; };
-		C1EE872D24185B970072E568 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; productRef = C1EE872C24185B970072E568 /* SwiftPackageProductDependency */; };
+		C1EE872D24185B970072E568 /* LBTATools in Frameworks */ = {isa = PBXBuildFile; productRef = C1EE872C24185B970072E568 /* LBTATools */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 		7384F91A1E60CAC1B9E20C60 /* Pods_Maps_SwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Maps_SwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C11DE24C2431A0270069747F /* RouteHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteHeader.swift; sourceTree = "<group>"; };
 		C11DE24F2433031D0069747F /* PlacesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesController.swift; sourceTree = "<group>"; };
+		C11DE25124362E6E0069747F /* CustomCallout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCallout.swift; sourceTree = "<group>"; };
 		C1A71C2D241A3703006BFA4C /* LocationsCarouselController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsCarouselController.swift; sourceTree = "<group>"; };
 		C1A71C2F241A7857006BFA4C /* MKMapItem+address.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKMapItem+address.swift"; sourceTree = "<group>"; };
 		C1A71C32241F9CF6006BFA4C /* DirectionsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectionsController.swift; sourceTree = "<group>"; };
@@ -51,8 +53,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C11DE24B242D57C90069747F /* BuildFile in Frameworks */,
-				C1EE872D24185B970072E568 /* BuildFile in Frameworks */,
+				C11DE24B242D57C90069747F /* JGProgressHUD in Frameworks */,
+				C1EE872D24185B970072E568 /* LBTATools in Frameworks */,
 				54660AFC919EDA4EE14C14BE /* Pods_Maps_SwiftUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -66,7 +68,6 @@
 				0C9D6E57FB603BED20F20FBD /* Pods-Maps_SwiftUI.debug.xcconfig */,
 				5EDB7E160BB35B6CD5140269 /* Pods-Maps_SwiftUI.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -82,6 +83,7 @@
 			isa = PBXGroup;
 			children = (
 				C11DE24F2433031D0069747F /* PlacesController.swift */,
+				C11DE25124362E6E0069747F /* CustomCallout.swift */,
 			);
 			path = Places;
 			sourceTree = "<group>";
@@ -168,8 +170,8 @@
 			);
 			name = Maps_SwiftUI;
 			packageProductDependencies = (
-				C1EE872C24185B970072E568 /* SwiftPackageProductDependency */,
-				C11DE24A242D57C90069747F /* SwiftPackageProductDependency */,
+				C1EE872C24185B970072E568 /* LBTATools */,
+				C11DE24A242D57C90069747F /* JGProgressHUD */,
 			);
 			productName = Maps_SwiftUI;
 			productReference = C1EE87112416100B0072E568 /* Maps_SwiftUI.app */;
@@ -200,8 +202,8 @@
 			);
 			mainGroup = C1EE87082416100B0072E568;
 			packageReferences = (
-				C1EE872B24185B970072E568 /* RemoteSwiftPackageReference */,
-				C11DE249242D57C90069747F /* RemoteSwiftPackageReference */,
+				C1EE872B24185B970072E568 /* XCRemoteSwiftPackageReference "LBTATools" */,
+				C11DE249242D57C90069747F /* XCRemoteSwiftPackageReference "JGProgressHUD" */,
 			);
 			productRefGroup = C1EE87122416100B0072E568 /* Products */;
 			projectDirPath = "";
@@ -281,6 +283,7 @@
 				C11DE24D2431A0270069747F /* RouteHeader.swift in Sources */,
 				C11DE2502433031D0069747F /* PlacesController.swift in Sources */,
 				C1A71C2E241A3703006BFA4C /* LocationsCarouselController.swift in Sources */,
+				C11DE25224362E6E0069747F /* CustomCallout.swift in Sources */,
 				C1EE87192416100B0072E568 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -479,7 +482,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		C11DE249242D57C90069747F /* RemoteSwiftPackageReference */ = {
+		C11DE249242D57C90069747F /* XCRemoteSwiftPackageReference "JGProgressHUD" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/JonasGessner/JGProgressHUD.git";
 			requirement = {
@@ -487,7 +490,7 @@
 				minimumVersion = 2.1.0;
 			};
 		};
-		C1EE872B24185B970072E568 /* RemoteSwiftPackageReference */ = {
+		C1EE872B24185B970072E568 /* XCRemoteSwiftPackageReference "LBTATools" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bhlvoong/LBTATools";
 			requirement = {
@@ -498,14 +501,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		C11DE24A242D57C90069747F /* SwiftPackageProductDependency */ = {
+		C11DE24A242D57C90069747F /* JGProgressHUD */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C11DE249242D57C90069747F /* RemoteSwiftPackageReference */;
+			package = C11DE249242D57C90069747F /* XCRemoteSwiftPackageReference "JGProgressHUD" */;
 			productName = JGProgressHUD;
 		};
-		C1EE872C24185B970072E568 /* SwiftPackageProductDependency */ = {
+		C1EE872C24185B970072E568 /* LBTATools */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C1EE872B24185B970072E568 /* RemoteSwiftPackageReference */;
+			package = C1EE872B24185B970072E568 /* XCRemoteSwiftPackageReference "LBTATools" */;
 			productName = LBTATools;
 		};
 /* End XCSwiftPackageProductDependency section */

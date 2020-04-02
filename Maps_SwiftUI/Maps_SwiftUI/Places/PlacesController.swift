@@ -10,6 +10,7 @@ import SwiftUI
 import LBTATools
 import MapKit
 import GooglePlaces
+import JGProgressHUD
 
 class PlacesController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     
@@ -26,6 +27,103 @@ class PlacesController: UIViewController, CLLocationManagerDelegate, MKMapViewDe
         locationManager.delegate = self
         
         requestForLocationAuthorization()
+        setupSelectedAnnotationHUD()
+    }
+    
+    
+    let hudNameLabel = UILabel(text: "Name", font: .boldSystemFont(ofSize: 16))
+    let hudAddressLabel = UILabel(text: "Address", font: .systemFont(ofSize: 16))
+    let hudTypesLabel = UILabel(text: "Types", textColor: .gray)
+    lazy var infoButton = UIButton(type: .infoLight)
+    let hudContainer = UIView(backgroundColor: .white)
+    
+    fileprivate func setupSelectedAnnotationHUD() {
+        
+        infoButton.addTarget(self, action: #selector(handleInfomation), for: .touchUpInside)
+        
+        view.addSubview(hudContainer)
+        hudContainer.layer.cornerRadius = 5
+        hudContainer.setupShadow(opacity: 0.2, radius: 5, offset: .zero, color: .darkGray)
+        hudContainer.anchor(top: nil, leading: view.leadingAnchor, bottom: view.bottomAnchor, trailing: view.trailingAnchor, padding: .allSides(16), size: .init(width: 0, height: 125))
+        
+        let topRow = UIView()
+        topRow.hstack(hudNameLabel, infoButton.withWidth(44))
+        hudContainer.hstack(hudContainer.stack(topRow,
+                             hudAddressLabel,
+                             hudTypesLabel, spacing: 8),
+                   alignment: .center).withMargins(.allSides(16))
+    }
+    
+    @objc fileprivate func handleInfomation() {
+        
+        guard let placeAnnotation = mapView.selectedAnnotations.first as? PlaceAnnotation else { return }
+        
+        guard let placeId = placeAnnotation.place.placeID else { return }
+        
+        let hud = JGProgressHUD(style: .dark)
+        hud.textLabel.text = "Loading photos.."
+        hud.show(in: view)
+        
+        client.lookUpPhotos(forPlaceID: placeId) { [weak self] (list, err) in
+            // check err
+            if let err = err {
+                hud.dismiss()
+                return
+            }
+            
+            let dispatchGroup = DispatchGroup()
+            
+            var images = [UIImage]()
+            
+            list?.results.forEach({ (photoMetadata) in
+                dispatchGroup.enter()
+                
+                self?.client.loadPlacePhoto(photoMetadata) { (image, err) in
+                    // check err
+                    
+                    
+                    dispatchGroup.leave()
+                    guard let image = image else { return }
+                    images.append(image)
+                }
+            })
+            
+            dispatchGroup.notify(queue: .main) {
+                hud.dismiss()
+                let controller = PlacePhotosController()
+                controller.items = images
+                self?.present(UINavigationController(rootViewController: controller), animated: true)
+            }
+        }
+    }
+    
+    class PhotoCell: LBTAListCell<UIImage> {
+        
+        override var item: UIImage! {
+            didSet {
+                imageView.image = item
+            }
+        }
+        
+        let imageView = UIImageView(image: nil, contentMode: .scaleAspectFill)
+        
+        override func setupViews() {
+//            backgroundColor = .red
+            
+            addSubview(imageView)
+            imageView.fillSuperview()
+        }
+    }
+    
+    class PlacePhotosController: LBTAListController<PhotoCell, UIImage>, UICollectionViewDelegateFlowLayout {
+        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+            .init(width: view.frame.width, height: 300)
+        }
+        
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            navigationItem.title = "Photos"
+        }
     }
     
     let client = GMSPlacesClient()
@@ -86,86 +184,66 @@ class PlacesController: UIViewController, CLLocationManagerDelegate, MKMapViewDe
     
     var currentCustomCallout: UIView?
     
-        func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-            currentCustomCallout?.removeFromSuperview()
-            
-            let customCalloutContainer = UIView(backgroundColor: .white)
-            
-    //        customCalloutContainer.frame = .init(x: 0, y: 0, width: 100, height: 200)
-            
-            view.addSubview(customCalloutContainer)
-            
-            customCalloutContainer.translatesAutoresizingMaskIntoConstraints = false
-            
-            let widthAnchor = customCalloutContainer.widthAnchor.constraint(equalToConstant: 100)
-            widthAnchor.isActive = true
-            let heightAnchor = customCalloutContainer.heightAnchor.constraint(equalToConstant: 200)
-            heightAnchor.isActive = true
-            customCalloutContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-            customCalloutContainer.bottomAnchor.constraint(equalTo: view.topAnchor).isActive = true
-            
-            customCalloutContainer.layer.borderWidth = 2
-            customCalloutContainer.layer.borderColor = UIColor.darkGray.cgColor
-            
-            customCalloutContainer.setupShadow(opacity: 0.2, radius: 5, offset: .zero, color: .darkGray)
-            customCalloutContainer.layer.cornerRadius = 5
-            
-            currentCustomCallout = customCalloutContainer
-            
-            // load the spinner
-            let spinner = UIActivityIndicatorView(style: .large)
-            spinner.color = .darkGray
-            spinner.startAnimating()
-            customCalloutContainer.addSubview(spinner)
-            spinner.fillSuperview()
-            
-            // look up our photo
-            
-            guard let placeId = (view.annotation as? PlaceAnnotation)?.place.placeID else { return }
-            
-            client.lookUpPhotos(forPlaceID: placeId) { [weak self] (metadatalist, err) in
-                if let err = err {
-                    print("Error when looking up photos:", err)
-                    return
-                }
+    fileprivate func setupHUD(view: MKAnnotationView) {
+        guard let annotation = view.annotation as? PlaceAnnotation else { return }
+        
+        let place = annotation.place
+        hudNameLabel.text = place.name
+        hudAddressLabel.text = place.formattedAddress
+        hudTypesLabel.text = place.types?.joined(separator: ", ")
+    }
+    
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        setupHUD(view: view)
+        
+        currentCustomCallout?.removeFromSuperview()
+        
+        let customCalloutContainer = CalloutContainer()
                 
-                guard let firstPhotoMetadata = metadatalist?.results.first else { return }
-                
-                self?.client.loadPlacePhoto(firstPhotoMetadata) { (image, err) in
-                    if let err = err {
-                        print("Failed to load photo for place:", err)
-                        return
-                    }
-                    
-                    guard let image = image else { return }
-                    
-                    if image.size.width > image.size.height {
-                        // w1/h1 = w2/h2
-                        let newWidth: CGFloat = 300
-                        let newHeight = newWidth / image.size.width * image.size.height
-                        widthAnchor.constant = newWidth
-                        heightAnchor.constant = newHeight
-                    } else {
-                        let newHeight: CGFloat = 200
-                        let newWidth = newHeight / image.size.height * image.size.width
-                        widthAnchor.constant = newWidth
-                        heightAnchor.constant = newHeight
-                    }
-                    
-                    // how do i put it into the red view
-                    let imageView = UIImageView(image: image, contentMode: .scaleAspectFill)
-                    customCalloutContainer.addSubview(imageView)
-                    imageView.layer.cornerRadius = 5
-                    imageView.fillSuperview()
-                    
-                    // label
-                    let labelContainer = UIView(backgroundColor: .white)
-                    let nameLabel = UILabel(text: (view.annotation as? PlaceAnnotation)?.place.name, textAlignment: .center)
-                    labelContainer.stack(nameLabel)
-                    customCalloutContainer.stack(UIView(), labelContainer.withHeight(30))
-                }
+        view.addSubview(customCalloutContainer)
+        
+        
+        let widthAnchor = customCalloutContainer.widthAnchor.constraint(equalToConstant: 100)
+        widthAnchor.isActive = true
+        let heightAnchor = customCalloutContainer.heightAnchor.constraint(equalToConstant: 200)
+        heightAnchor.isActive = true
+        customCalloutContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        customCalloutContainer.bottomAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        
+        currentCustomCallout = customCalloutContainer
+        
+        // look up our photo
+        guard let firstPhotoMetadata = (view.annotation as? PlaceAnnotation)?.place.photos?.first else { return }
+            
+        self.client.loadPlacePhoto(firstPhotoMetadata) { [weak self](image, err) in
+            if let err = err {
+                print("Failed to load photo for place:", err)
+                return
             }
+            
+            guard let image = image else { return }
+            guard let bestSize = self?.bestCalloutImageSize(image: image) else { return }
+            widthAnchor.constant = bestSize.width
+            heightAnchor.constant = bestSize.height
+            
+            customCalloutContainer.imageView.image = image
+            customCalloutContainer.nameLabel.text = (view.annotation as? PlaceAnnotation)?.place.name
         }
+    }
+    
+    fileprivate func bestCalloutImageSize(image: UIImage) -> CGSize {
+        
+        if image.size.width > image.size.height {
+            // w1/h1 = w2/h2
+            let newWidth: CGFloat = 300
+            let newHeight = newWidth / image.size.width * image.size.height
+            return .init(width: newWidth, height: newHeight)
+        } else {
+            let newHeight: CGFloat = 200
+            let newWidth = newHeight / image.size.height * image.size.width
+            return .init(width: newWidth, height: newHeight)
+        }
+    }
     
     fileprivate func requestForLocationAuthorization() {
         locationManager.requestWhenInUseAuthorization()
