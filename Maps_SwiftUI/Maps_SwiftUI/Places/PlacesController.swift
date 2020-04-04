@@ -66,7 +66,7 @@ class PlacesController: UIViewController, CLLocationManagerDelegate, MKMapViewDe
         
         client.lookUpPhotos(forPlaceID: placeId) { [weak self] (list, err) in
             // check err
-            if let err = err {
+            if let _ = err {
                 hud.dismiss()
                 return
             }
