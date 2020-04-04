@@ -1,0 +1,6 @@
+framework module Pods_Maps_SwiftUI {
+  umbrella header "Pods-Maps_SwiftUI-umbrella.h"
+
+  export *
+  module * { export * }
+}
